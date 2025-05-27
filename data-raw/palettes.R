@@ -1,4 +1,4 @@
-devtools::load_all("../../ggsegExtra/")
+devtools::load_all("../ggsegExtra/")
 devtools::load_all(".")
 
 
@@ -24,8 +24,15 @@ glasser <- ggsegExtra::make_ggseg3d_2_ggseg(glasser_3d,
 
 # remove name from medial wall
 glasser <- glasser %>%
-  mutate(region = ifelse(grepl("wall", region), NA, region)) %>%
-  as_ggseg_atlas()
+  as_tibble() %>%
+  mutate(region = ifelse(grepl("wall", region), NA, region),
+         # Don't know where the y axis is getting reversed
+         # in the ggsegExtra generation, but re-flip all the features over the x axis
+         geometry = geometry * matrix(c(1, 0, 0, -1), 2, 2)) %>%
+  as_brain_atlas()
+
+# reapply palette to atlas bc it gets stripped by as_tibble
+glasser$palette <- brain_pals$glasser
 
 # glasser$geometry <- NULL
 # glasser <- as_tibble(glasser)
